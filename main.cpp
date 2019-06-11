@@ -28,6 +28,9 @@ enum eDirection
 };
 eDirection direction;
 eDirection oldDirection;
+int tailX[100];
+int tailY[100];
+int nTail;
 
 int _kbhit(void)
 {
@@ -65,6 +68,9 @@ void Setup()
     fruitX = rand() % width;
     fruitY = rand() % height;
     score = 0;
+    nTail = 0;
+    tailX[100];
+    tailY[100];
 }
 
 void Draw()
@@ -96,7 +102,19 @@ void Draw()
             }
             else
             {
-                cout << " ";
+                bool print = false;
+                for (int k = 0; k < nTail; k++)
+                {
+                    if (tailX[k] == j && tailY[k] == i)
+                    {
+                        cout << "o";
+                        print = true;
+                    }
+                }
+                if (!print)
+                {
+                    cout << " ";
+                }
             }
 
             if (j == width - 1)
@@ -140,6 +158,22 @@ void Input()
 
 void Logic()
 {
+
+    int prevX = tailX[0];
+    int prevY = tailY[0];
+    int prev2X, prev2Y;
+    tailX[0] = x;
+    tailY[0] = y;
+    for (int i = 1; i < nTail; i++)
+    {
+        prev2X = tailX[i];
+        prev2Y = tailY[i];
+        tailX[i] = prevX;
+        tailY[i] = prevY;
+        prevX = prev2X;
+        prevY = prev2Y;
+    }
+
     switch (direction)
     {
     case LEFT:
@@ -158,18 +192,28 @@ void Logic()
         break;
     }
 
-    if (x > width -1)
+    for (int i = 0; i < nTail; i++){
+        if(tailX[i] == x && tailY[i] == y){
+            gameOver = true;
+        }
+    }
+
+    if (x > width - 1)
     {
         x = 0;
-    } else if(x < 0) {
+    }
+    else if (x < 0)
+    {
         x = width - 1;
     }
 
     if (y > height - 1)
     {
         y = 0;
-    } else if(y < 0) {
-        y = height -1;
+    }
+    else if (y < 0)
+    {
+        y = height - 1;
     }
 
     if (x == fruitX && y == fruitY)
@@ -177,6 +221,7 @@ void Logic()
         score += 10;
         fruitX = rand() % width;
         fruitY = rand() % height;
+        nTail++;
     }
 }
 
@@ -188,7 +233,23 @@ int main()
         Draw();
         Input();
         Logic();
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        if(gameOver){
+            system("clear");
+            cout << "GAME OVER" << endl << endl;
+            cout << endl << endl << endl;
+            cout << "Press 1 To Continue";
+            cout << endl << endl;
+            cout << "Press 0 To Exit";
+            cout << endl << endl;
+            char option = getchar();
+            cout << option;
+
+            if(option ==  '1'){
+                Setup();
+            }
+        }
     }
     return 0;
 }
